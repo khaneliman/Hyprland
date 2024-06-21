@@ -1,5 +1,6 @@
 #include "Math.hpp"
 #include <unordered_map>
+#include <cstring>
 
 Hyprutils::Math::eTransform wlTransformToHyprutils(wl_output_transform t) {
     switch (t) {
