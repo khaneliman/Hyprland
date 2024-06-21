@@ -306,24 +306,85 @@ void Events::listener_mapWindow(void* owner, void* data) {
             PWINDOW->m_pWorkspace = pWorkspace;
             PWINDOW->m_iMonitorID = pWorkspace->m_iMonitorID;
 
-            if (g_pCompositor->getMonitorFromID(PWINDOW->m_iMonitorID)->activeSpecialWorkspace && !pWorkspace->m_bIsSpecialWorkspace)
+            auto monitor = g_pCompositor->getMonitorFromID(PWINDOW->m_iMonitorID);
+
+            // Check if monitor is null
+            if (monitor == nullptr) {
+                Debug::log(LOG, "[Troubleshoot] Monitor is null for ID: {}", PWINDOW->m_iMonitorID);
+            } else {
+                Debug::log(LOG, "[Troubleshoot] Monitor retrieved successfully for ID: {}", PWINDOW->m_iMonitorID);
+            }
+
+            // Check if activeSpecialWorkspace is true and log the status
+            if (monitor != nullptr && monitor->activeSpecialWorkspace) {
+                Debug::log(LOG, "[Troubleshoot] Monitor has an active special workspace.");
+            } else if (monitor != nullptr) {
+                Debug::log(LOG, "[Troubleshoot] Monitor does not have an active special workspace.");
+            }
+
+            // Check if pWorkspace is null and log the status
+            if (pWorkspace == nullptr) {
+                Debug::log(LOG, "[Troubleshoot] pWorkspace is null.");
+            } else {
+                Debug::log(LOG, "[Troubleshoot] pWorkspace retrieved successfully.");
+            }
+
+            // Check if pWorkspace is not a special workspace and log the status
+            if (pWorkspace != nullptr && !pWorkspace->m_bIsSpecialWorkspace) {
+                Debug::log(LOG, "[Troubleshoot] pWorkspace is not a special workspace.");
+            } else if (pWorkspace != nullptr) {
+                Debug::log(LOG, "[Troubleshoot] pWorkspace is a special workspace.");
+            }
+
+            // Final condition to set workspaceSilent
+            if (monitor != nullptr && monitor->activeSpecialWorkspace && pWorkspace != nullptr && !pWorkspace->m_bIsSpecialWorkspace) {
                 workspaceSilent = true;
+                Debug::log(LOG, "[Troubleshoot] workspaceSilent set to true.");
+            } else {
+                Debug::log(LOG, "[Troubleshoot] workspaceSilent remains {}.", workspaceSilent);
+            }
 
             if (!workspaceSilent) {
-                if (pWorkspace->m_bIsSpecialWorkspace)
+                Debug::log(LOG, "[Troubleshoot] Workspace isn't silent.");
+                if (pWorkspace->m_bIsSpecialWorkspace && monitor != nullptr) {
+                    Debug::log(LOG, "[Troubleshoot] Workspace is special.");
+                    /* Debug::log(LOG, "[Troubleshoot] Setting special workspace on monitor {} for workspace {}.", g_pCompositor->getMonitorFromID(pWorkspace->m_iMonitorID), */
+                    /*            pWorkspace); */
                     g_pCompositor->getMonitorFromID(pWorkspace->m_iMonitorID)->setSpecialWorkspace(pWorkspace);
-                else if (PMONITOR->activeWorkspaceID() != REQUESTEDWORKSPACEID)
+                } else if (PMONITOR->activeWorkspaceID() != REQUESTEDWORKSPACEID) {
+                    Debug::log(LOG, "[Troubleshoot] Workspace isn't request workspace.");
+                    Debug::log(LOG, "[Troubleshoot] Calling dispatcher for requested workspace: {}", requestedWorkspaceName);
                     g_pKeybindManager->m_mDispatchers["workspace"](requestedWorkspaceName);
+                }
 
-                PMONITOR = g_pCompositor->m_pLastMonitor.get();
+                /* Debug::log(LOG, "[Troubleshoot] Setting PMONITOR to {}", g_pCompositor->m_pLastMonitor.get()); */
+
+                Debug::log(LOG, "[Troubleshoot] Setting PMONITOR");
+                if (g_pCompositor->m_pLastMonitor.valid())
+                    PMONITOR = g_pCompositor->m_pLastMonitor.get();
             }
         } else
             workspaceSilent = false;
     }
 
+    Debug::log(LOG, "WINDOW BEFORE:");
+    Debug::log(LOG, "Monitor : {}", PWINDOW->m_iMonitorID);
+    Debug::log(LOG, "Workspace : {}", PWINDOW->m_pWorkspace->m_szName);
+    Debug::log(LOG, "Floating : {}", PWINDOW->m_bIsFloating);
+    Debug::log(LOG, "Title : {}", PWINDOW->m_szTitle);
+    Debug::log(LOG, "Class: {}", PWINDOW->m_szClass);
+
     PWINDOW->updateSpecialRenderData();
 
+    Debug::log(LOG, "WINDOW AFTER:");
+    Debug::log(LOG, "Monitor : {}", PWINDOW->m_iMonitorID);
+    Debug::log(LOG, "Workspace : {}", PWINDOW->m_pWorkspace->m_szName);
+    Debug::log(LOG, "Floating : {}", PWINDOW->m_bIsFloating);
+    Debug::log(LOG, "Title : {}", PWINDOW->m_szTitle);
+    Debug::log(LOG, "Class: {}", PWINDOW->m_szClass);
+
     if (PWINDOW->m_bIsFloating) {
+        Debug::log(LOG, "Window is floating, calling onWindowCreatedFloating");
         g_pLayoutManager->getCurrentLayout()->onWindowCreatedFloating(PWINDOW);
         PWINDOW->m_bCreatedOverFullscreen = true;
 
