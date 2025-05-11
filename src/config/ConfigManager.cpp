@@ -1350,8 +1350,9 @@ std::vector<SP<CWindowRule>> CConfigManager::getMatchingRules(PHLWINDOW pWindow,
     Debug::log(LOG, "Searching for matching rules for {} (title: {})", pWindow->m_class, pWindow->m_title);
 
     // since some rules will be applied later, we need to store some flags
-    bool hasFloating   = pWindow->m_isFloating;
-    bool hasFullscreen = pWindow->isFullscreen();
+    bool hasFloating       = pWindow->m_isFloating;
+    bool hasInhibitingIdle = pWindow->m_isInhibitingIdle;
+    bool hasFullscreen     = pWindow->isFullscreen();
 
     // local tags for dynamic tag rule match
     auto tags = pWindow->m_tags;
@@ -1382,6 +1383,11 @@ std::vector<SP<CWindowRule>> CConfigManager::getMatchingRules(PHLWINDOW pWindow,
 
                 if (rule->m_floating != -1) {
                     if (hasFloating != rule->m_floating)
+                        continue;
+                }
+
+                if (rule->m_inhibitingIdle != -1) {
+                    if (hasInhibitingIdle != rule->m_inhibitingIdle)
                         continue;
                 }
 
@@ -2443,7 +2449,7 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
         currentPos = VALUE.find("workspace:", currentPos + 1);
     }
 
-    const auto checkPos = std::unordered_set{TAGPOS,    TITLEPOS,           CLASSPOS,     INITIALTITLEPOS, INITIALCLASSPOS, X11POS,         FLOATPOS, FULLSCREENPOS,
+    const auto checkPos = std::unordered_set{TAGPOS,    TITLEPOS,           CLASSPOS,     INITIALTITLEPOS, INITIALCLASSPOS, X11POS,         FLOATPOS,  FULLSCREENPOS,
                                              PINNEDPOS, FULLSCREENSTATEPOS, WORKSPACEPOS, FOCUSPOS,        ONWORKSPACEPOS,  CONTENTTYPEPOS, XDGTAGPOS, INHIBITINGIDLEPOS};
     if (checkPos.size() == 1 && checkPos.contains(std::string::npos)) {
         Debug::log(ERR, "Invalid rulev2 syntax: {}", VALUE);

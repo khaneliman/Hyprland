@@ -181,14 +181,15 @@ class CWindow {
     // for recovering relative cursor position
     Vector2D         m_relativeCursorCoordsOnLastWarp = Vector2D(-1, -1);
 
-    bool             m_firstMap        = false; // for layouts
-    bool             m_isFloating      = false;
-    bool             m_draggingTiled   = false; // for dragging around tiled windows
-    SFullscreenState m_fullscreenState = {.internal = FSMODE_NONE, .client = FSMODE_NONE};
-    std::string      m_title           = "";
-    std::string      m_class           = "";
-    std::string      m_initialTitle    = "";
-    std::string      m_initialClass    = "";
+    bool             m_firstMap         = false; // for layouts
+    bool             m_isFloating       = false;
+    bool             m_isInhibitingIdle = false;
+    bool             m_draggingTiled    = false; // for dragging around tiled windows
+    SFullscreenState m_fullscreenState  = {.internal = FSMODE_NONE, .client = FSMODE_NONE};
+    std::string      m_title            = "";
+    std::string      m_class            = "";
+    std::string      m_initialTitle     = "";
+    std::string      m_initialClass     = "";
     PHLWORKSPACE     m_workspace;
     PHLMONITORREF    m_monitor;
 
