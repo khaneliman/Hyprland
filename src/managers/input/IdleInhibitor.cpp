@@ -61,6 +61,14 @@ void CInputManager::recheckIdleInhibitorStatus() {
 }
 
 bool CInputManager::isWindowInhibiting(const PHLWINDOW& w, bool onlyHl) {
+    // Check if the window has a specific inhibitingIdle rule set
+    for (const auto& r : w->m_matchedRules) {
+        if (r->m_inhibitingIdle == 0) // inhibitingIdle:false
+            return false;
+        else if (r->m_inhibitingIdle == 1) // inhibitingIdle:true
+            return true;
+    }
+
     if (w->m_idleInhibitMode == IDLEINHIBIT_ALWAYS)
         return true;
 

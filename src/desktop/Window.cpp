@@ -822,6 +822,8 @@ void CWindow::updateDynamicRules() {
 
     EMIT_HOOK_EVENT("windowUpdateRules", m_self.lock());
 
+    g_pInputManager->recheckIdleInhibitorStatus();
+
     g_pLayoutManager->getCurrentLayout()->recalculateMonitor(monitorID());
 }
 

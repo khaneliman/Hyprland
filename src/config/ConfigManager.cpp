@@ -2426,6 +2426,7 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
     const auto FULLSCREENPOS      = VALUE.find("fullscreen:");
     const auto PINNEDPOS          = VALUE.find("pinned:");
     const auto FOCUSPOS           = VALUE.find("focus:");
+    const auto INHIBITINGIDLEPOS  = VALUE.find("inhibitingIdle:");
     const auto FULLSCREENSTATEPOS = VALUE.find("fullscreenstate:");
     const auto ONWORKSPACEPOS     = VALUE.find("onworkspace:");
     const auto CONTENTTYPEPOS     = VALUE.find("content:");
@@ -2443,7 +2444,7 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
     }
 
     const auto checkPos = std::unordered_set{TAGPOS,    TITLEPOS,           CLASSPOS,     INITIALTITLEPOS, INITIALCLASSPOS, X11POS,         FLOATPOS, FULLSCREENPOS,
-                                             PINNEDPOS, FULLSCREENSTATEPOS, WORKSPACEPOS, FOCUSPOS,        ONWORKSPACEPOS,  CONTENTTYPEPOS, XDGTAGPOS};
+                                             PINNEDPOS, FULLSCREENSTATEPOS, WORKSPACEPOS, FOCUSPOS,        ONWORKSPACEPOS,  CONTENTTYPEPOS, XDGTAGPOS, INHIBITINGIDLEPOS};
     if (checkPos.size() == 1 && checkPos.contains(std::string::npos)) {
         Debug::log(ERR, "Invalid rulev2 syntax: {}", VALUE);
         return "Invalid rulev2 syntax: " + VALUE;
@@ -2484,6 +2485,8 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
             min = CONTENTTYPEPOS;
         if (XDGTAGPOS > pos && XDGTAGPOS < min)
             min = XDGTAGPOS;
+        if (INHIBITINGIDLEPOS > pos && INHIBITINGIDLEPOS < min)
+            min = INHIBITINGIDLEPOS;
 
         result = result.substr(0, min - pos);
 
@@ -2539,6 +2542,9 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
     if (FOCUSPOS != std::string::npos)
         rule->m_focus = extract(FOCUSPOS + 6) == "1" ? 1 : 0;
 
+    if (INHIBITINGIDLEPOS != std::string::npos)
+        rule->m_inhibitingIdle = extract(INHIBITINGIDLEPOS + 15) == "true" ? 1 : 0;
+
     if (ONWORKSPACEPOS != std::string::npos)
         rule->m_onWorkspace = extract(ONWORKSPACEPOS + 12);
 
@@ -2587,6 +2593,9 @@ std::optional<std::string> CConfigManager::handleWindowRule(const std::string& c
                     return false;
 
                 if (rule->m_focus != -1 && rule->m_focus != other->m_focus)
+                    return false;
+
+                if (rule->m_inhibitingIdle != -1 && rule->m_inhibitingIdle != other->m_inhibitingIdle)
                     return false;
 
                 if (!rule->m_onWorkspace.empty() && rule->m_onWorkspace != other->m_onWorkspace)
