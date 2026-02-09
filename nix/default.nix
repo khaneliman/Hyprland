@@ -22,12 +22,15 @@
   hyprwayland-scanner,
   hyprwire,
   libGL,
+  libXcursor,
+  libXdmcp,
   libdrm,
   libexecinfo,
-  libinput,
-  libxkbcommon,
-  libuuid,
   libgbm,
+  libinput,
+  libuuid,
+  libxcb,
+  libxkbcommon,
   muparser,
   pango,
   pciutils,
@@ -38,7 +41,9 @@
   wayland,
   wayland-protocols,
   wayland-scanner,
-  xorg,
+  xcbutilerrors,
+  xcbutilrenderutil,
+  xcbutilwm,
   xwayland,
   debug ? false,
   withTests ? false,
@@ -175,16 +180,16 @@ in
           wayland
           wayland-protocols
           wayland-scanner
-          xorg.libXcursor
+          libXcursor
         ]
         (optionals customStdenv.hostPlatform.isBSD [epoll-shim])
         (optionals customStdenv.hostPlatform.isMusl [libexecinfo])
         (optionals enableXWayland [
-          xorg.libxcb
-          xorg.libXdmcp
-          xorg.xcbutilerrors
-          xorg.xcbutilrenderutil
-          xorg.xcbutilwm
+          libxcb
+          libXdmcp
+          xcbutilerrors
+          xcbutilrenderutil
+          xcbutilwm
           xwayland
         ])
         (optional withSystemd systemd)
